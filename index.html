@@ -9,31 +9,31 @@
 <body>
   <div id="menu">
     <h1>🚗 Jeu de Course</h1>
-    <button id="startDefault">Commencer avec musique du jeu</button>
-    <button id="startCustom">Importer ma propre musique</button>
-    <input type="file" id="fileInput" accept="audio/*" class="hidden" />
+    <button onclick="startGame()">Démarrer</button>
   </div>
 
   <div id="gameArea" class="hidden">
     <div id="playerCar"></div>
+
+    <!-- Boutons mobiles -->
     <button id="leftBtn" class="mobile-btn">⬅️</button>
     <button id="rightBtn" class="mobile-btn">➡️</button>
     <button id="flyBtn" class="mobile-btn" style="bottom: 110px; right: 20px; width: 70px; height: 50px; font-size: 18px;">FLY</button>
-    <button id="pauseBtn">⏸️ Pause</button>
-    <button id="muteBtn" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 12;">🔊</button>
+
+    <button id="pauseBtn" tabindex="-1">⏸️ Pause</button>
+    <button id="muteBtn" tabindex="-1" style="top: 50px; right: 10px; position: absolute; z-index: 12; font-size: 18px; padding: 8px 15px; border: none; border-radius: 8px; background: #f90; color: #000; cursor: pointer;">🔊</button>
   </div>
 
   <div id="score" class="hidden">Score: 0 | Sauts restants: 10</div>
 
   <div id="gameOver" class="hidden">
     <h2 id="finalScore"></h2>
-    <button id="restartSameBtn">Recommencer avec même musique</button>
-    <button id="restartDefaultBtn">Recommencer avec musique du jeu</button>
-    <button id="restartCustomBtn">Recommencer avec autre musique</button>
+    <button id="restartBtn">Recommencer</button>
   </div>
 
+  <!-- 🎵 Sons du jeu -->
   <audio id="bgMusic" src="engine_loop.mp3" loop></audio>
-  <audio id="crashSound" src="explosion.mp3"></audio>
+  <audio id="explosionSound" src="explosion.mp3"></audio>
 
   <script src="script.js"></script>
 </body>
