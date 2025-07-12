@@ -21,14 +21,46 @@ restartBtn.addEventListener("click", () => {
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 
+let leftInterval, rightInterval;
+
 leftBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
+  if (leftInterval) return; 
   movePlayer("left");
+  leftInterval = setInterval(() => {
+    movePlayer("left");
+  }, 100);
+});
+
+leftBtn.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  clearInterval(leftInterval);
+  leftInterval = null;
+});
+leftBtn.addEventListener("touchcancel", (e) => {
+  e.preventDefault();
+  clearInterval(leftInterval);
+  leftInterval = null;
 });
 
 rightBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
+  if (rightInterval) return;
   movePlayer("right");
+  rightInterval = setInterval(() => {
+    movePlayer("right");
+  }, 100);
+});
+
+rightBtn.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  clearInterval(rightInterval);
+  rightInterval = null;
+});
+rightBtn.addEventListener("touchcancel", (e) => {
+  e.preventDefault();
+  clearInterval(rightInterval);
+  rightInterval = null;
 });
 
 function startGame() {
@@ -56,7 +88,7 @@ function startGame() {
 
   playerCar = document.getElementById("playerCar");
   playerX = window.innerWidth / 2 - 25;
-  playerY = window.innerHeight - 150;
+  playerY = window.innerHeight - playerCar.offsetHeight - 20;  // position bas écran précise
   updatePlayerPosition();
 
   for (let i = 0; i < 6; i++) {
