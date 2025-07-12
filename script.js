@@ -16,13 +16,15 @@ const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 const flyBtn = document.getElementById("flyBtn");
 
+const bgMusic = document.getElementById("bgMusic");
+const crashSound = document.getElementById("crashSound");
+
 pauseBtn.addEventListener("click", togglePause);
 restartBtn.addEventListener("click", () => {
   resetGame();
   startGame();
 });
 
-// Boutons mobiles
 let leftInterval, rightInterval;
 
 leftBtn.addEventListener("touchstart", (e) => {
@@ -104,6 +106,9 @@ function startGame() {
     enemies.push(enemy);
   }, 1000);
 
+  bgMusic.volume = 0.3;
+  bgMusic.play();
+
   requestAnimationFrame(updateGame);
 }
 
@@ -118,6 +123,9 @@ function resetGame() {
   document.getElementById("gameArea").classList.remove("hidden");
   document.getElementById("score").classList.remove("hidden");
   document.getElementById("gameOver").classList.add("hidden");
+
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
 }
 
 function updatePlayerPosition() {
@@ -233,6 +241,9 @@ function togglePause() {
 }
 
 function showGameOver() {
+  bgMusic.pause();
+  crashSound.play();
+
   gameArea.classList.add("hidden");
   scoreText.classList.add("hidden");
   finalScoreText.innerText = `Game Over ! Ton score : ${score}`;
