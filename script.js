@@ -51,7 +51,7 @@ function startGame() {
     const line = document.createElement("div");
     line.classList.add("roadLine");
     line.style.top = `${i * 150}px`;
-    line.style.left = `calc(50% - 3px)`; // centré
+    line.style.left = `calc(50% - 3px)`;
     gameArea.appendChild(line);
     lines.push(line);
   }
@@ -156,51 +156,50 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "Space") jumpOver();
 });
 
+// Swipe tactile amélioré pour mobile
 let touchStartX = 0;
 let touchStartY = 0;
-let touchMoved = false;
+let touchEndX = 0;
+let touchEndY = 0;
+const minSwipeDistance = 30;
 
 gameArea.addEventListener("touchstart", (e) => {
+  if (!gameRunning || isPaused) return;
   const touch = e.touches[0];
   touchStartX = touch.clientX;
   touchStartY = touch.clientY;
-  touchMoved = false;
 });
 
 gameArea.addEventListener("touchmove", (e) => {
-  if (!gameRunning || isPaused) return;
-
-  const touch = e.touches[0];
-  const diffX = touch.clientX - touchStartX;
-  const diffY = touch.clientY - touchStartY;
-  const threshold = 30;
-
-  if (Math.abs(diffX) > Math.abs(diffY)) {
-    if (diffX > threshold) {
-      movePlayer("right");
-      touchStartX = touch.clientX;
-      touchMoved = true;
-    } else if (diffX < -threshold) {
-      movePlayer("left");
-      touchStartX = touch.clientX;
-      touchMoved = true;
-    }
-  } else {
-    if (diffY > threshold) {
-      movePlayer("down");
-      touchStartY = touch.clientY;
-      touchMoved = true;
-    } else if (diffY < -threshold) {
-      movePlayer("up");
-      touchStartY = touch.clientY;
-      touchMoved = true;
-    }
-  }
+  e.preventDefault();
 });
 
 gameArea.addEventListener("touchend", (e) => {
+  if (!gameRunning || isPaused) return;
+  const touch = e.changedTouches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX > minSwipeDistance) {
+      movePlayer("right");
+    } else if (diffX < -minSwipeDistance) {
+      movePlayer("left");
+    }
+  } else {
+    if (diffY > minSwipeDistance) {
+      movePlayer("down");
+    } else if (diffY < -minSwipeDistance) {
+      movePlayer("up");
+    }
+  }
+
+  // Double tap pour sauter
   const now = new Date().getTime();
-  if (!touchMoved && now - lastTapTime < 400) {
+  if (now - lastTapTime < 400) {
     jumpOver();
   }
   lastTapTime = now;
