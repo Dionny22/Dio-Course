@@ -3,41 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dio Course</title>
+  <title>Jeu de Course</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="menu">
-    <h1>🚗 Jeu de Course Retro</h1>
-    <button id="useDefaultMusicBtn">Commencer avec la musique du jeu</button>
-    <button id="importMusicBtn">Importer ma propre musique</button>
-    <input type="file" id="customMusicInput" accept="audio/*" class="hidden" />
+    <h1>🚗 Jeu de Course</h1>
+    <button id="startDefault">Commencer avec musique du jeu</button>
+    <button id="startCustom">Importer ma propre musique</button>
+    <input type="file" id="fileInput" accept="audio/*" class="hidden" />
   </div>
 
   <div id="gameArea" class="hidden">
     <div id="playerCar"></div>
-
-    <!-- Boutons mobiles -->
     <button id="leftBtn" class="mobile-btn">⬅️</button>
     <button id="rightBtn" class="mobile-btn">➡️</button>
     <button id="flyBtn" class="mobile-btn" style="bottom: 110px; right: 20px; width: 70px; height: 50px; font-size: 18px;">FLY</button>
-
-    <button id="pauseBtn" tabindex="-1">⏸️ Pause</button>
-    <button id="muteBtn" tabindex="-1" style="right: 100px; top: 10px; position: absolute;">🔊</button>
+    <button id="pauseBtn">⏸️ Pause</button>
+    <button id="muteBtn" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 12;">🔊</button>
   </div>
 
   <div id="score" class="hidden">Score: 0 | Sauts restants: 10</div>
 
   <div id="gameOver" class="hidden">
     <h2 id="finalScore"></h2>
-    <button id="restartSameMusicBtn">Recommencer avec la même chanson</button>
-    <button id="restartDefaultMusicBtn">Recommencer avec la musique du jeu</button>
-    <button id="restartNewMusicBtn">Recommencer avec une autre musique</button>
+    <button id="restartSameBtn">Recommencer avec même musique</button>
+    <button id="restartDefaultBtn">Recommencer avec musique du jeu</button>
+    <button id="restartCustomBtn">Recommencer avec autre musique</button>
   </div>
 
-  <!-- 🎵 Sons du jeu -->
   <audio id="bgMusic" src="engine_loop.mp3" loop></audio>
-  <audio id="explosionSound" src="explosion.mp3"></audio>
+  <audio id="crashSound" src="explosion.mp3"></audio>
 
   <script src="script.js"></script>
 </body>
