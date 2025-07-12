@@ -12,54 +12,35 @@ const finalScoreText = document.getElementById("finalScore");
 const restartBtn = document.getElementById("restartBtn");
 const pauseBtn = document.getElementById("pauseBtn");
 
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+const flyBtn = document.getElementById("flyBtn");
+
 pauseBtn.addEventListener("click", togglePause);
 restartBtn.addEventListener("click", () => {
   resetGame();
   startGame();
 });
 
-const leftBtn = document.getElementById("leftBtn");
-const rightBtn = document.getElementById("rightBtn");
-const flyBtn = document.getElementById("flyBtn");
-
-let leftInterval = null;
-let rightInterval = null;
+// Boutons mobiles
+let leftInterval, rightInterval;
 
 leftBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
-  if (leftInterval) return;
   movePlayer("left");
   leftInterval = setInterval(() => movePlayer("left"), 100);
 });
-leftBtn.addEventListener("touchend", (e) => {
-  e.preventDefault();
-  clearInterval(leftInterval);
-  leftInterval = null;
-});
-leftBtn.addEventListener("touchcancel", (e) => {
-  e.preventDefault();
-  clearInterval(leftInterval);
-  leftInterval = null;
-});
+leftBtn.addEventListener("touchend", () => clearInterval(leftInterval));
+leftBtn.addEventListener("touchcancel", () => clearInterval(leftInterval));
 
 rightBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
-  if (rightInterval) return;
   movePlayer("right");
   rightInterval = setInterval(() => movePlayer("right"), 100);
 });
-rightBtn.addEventListener("touchend", (e) => {
-  e.preventDefault();
-  clearInterval(rightInterval);
-  rightInterval = null;
-});
-rightBtn.addEventListener("touchcancel", (e) => {
-  e.preventDefault();
-  clearInterval(rightInterval);
-  rightInterval = null;
-});
+rightBtn.addEventListener("touchend", () => clearInterval(rightInterval));
+rightBtn.addEventListener("touchcancel", () => clearInterval(rightInterval));
 
-// ✅ Nouveau : saut via bouton FLY
 flyBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
   jumpOver();
@@ -97,7 +78,6 @@ function startGame() {
     const line = document.createElement("div");
     line.classList.add("roadLine");
     line.style.top = `${i * 150}px`;
-    line.style.left = `calc(50% - 3px)`;
     gameArea.appendChild(line);
     lines.push(line);
   }
@@ -110,13 +90,12 @@ function startGame() {
     const sizes = [
       { width: 35, height: 70 },
       { width: 50, height: 100 },
-      { width:  70, height: 140 }
+      { width: 70, height: 140 }
     ];
     const size = sizes[Math.floor(Math.random() * sizes.length)];
 
     enemy.style.width = size.width + "px";
     enemy.style.height = size.height + "px";
-
     const maxLeft = window.innerWidth - size.width;
     enemy.style.left = Math.floor(Math.random() * maxLeft) + "px";
     enemy.style.top = `-${size.height}px`;
@@ -151,8 +130,6 @@ function movePlayer(dir) {
   const step = 20;
   if (dir === "left" && playerX > 0) playerX -= step;
   if (dir === "right" && playerX < window.innerWidth - 50) playerX += step;
-  if (dir === "up" && playerY > 0) playerY -= step;
-  if (dir === "down" && playerY < window.innerHeight - 120) playerY += step;
   updatePlayerPosition();
 }
 
@@ -161,48 +138,45 @@ function jumpOver() {
     isJumping = true;
     jumpCount--;
 
-    // Mettre à jour playerY juste avant le saut
-    playerY = parseFloat(playerCar.style.top || (window.innerHeight - 120));
-
-    let jumpHeight = 100;
-    let jumpDuration = 500;
+    const originalTop = parseFloat(playerCar.style.top || (window.innerHeight - 120));
+    const jumpHeight = 120;
+    const jumpDuration = 500;
     let start = null;
+
+    playerCar.style.opacity = "0.3";
 
     function animateJump(timestamp) {
       if (!start) start = timestamp;
-      let elapsed = timestamp - start;
+      const elapsed = timestamp - start;
 
       if (elapsed < jumpDuration / 2) {
-        playerCar.style.top = playerY - (jumpHeight * (elapsed / (jumpDuration / 2))) + "px";
+        const newTop = originalTop - jumpHeight * (elapsed / (jumpDuration / 2));
+        playerCar.style.top = `${newTop}px`;
       } else if (elapsed < jumpDuration) {
-        playerCar.style.top = playerY - (jumpHeight * (1 - (elapsed - jumpDuration / 2) / (jumpDuration / 2))) + "px";
+        const newTop = originalTop - jumpHeight * (1 - (elapsed - jumpDuration / 2) / (jumpDuration / 2));
+        playerCar.style.top = `${newTop}px`;
       } else {
-        playerCar.style.top = playerY + "px";
+        playerCar.style.top = `${originalTop}px`;
+        playerCar.style.opacity = "1";
         isJumping = false;
         return;
       }
+
       requestAnimationFrame(animateJump);
     }
 
-    playerCar.style.opacity = "0.3";
-    animateJump();
-
-    setTimeout(() => {
-      playerCar.style.opacity = "1";
-    }, jumpDuration);
+    requestAnimationFrame(animateJump);
   }
 }
 
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") e.preventDefault();
-
   if (!gameRunning || isPaused) return;
-
   if (e.key === "ArrowLeft") movePlayer("left");
   if (e.key === "ArrowRight") movePlayer("right");
-  if (e.key === "ArrowUp") movePlayer("up");
-  if (e.key === "ArrowDown") movePlayer("down");
-  if (e.code === "Space") jumpOver();
+  if (e.code === "Space") {
+    e.preventDefault();
+    jumpOver();
+  }
 });
 
 function updateGame() {
@@ -253,7 +227,6 @@ function checkCollision(a, b) {
 function togglePause() {
   isPaused = !isPaused;
   pauseBtn.textContent = isPaused ? "▶️ Reprendre" : "⏸️ Pause";
-
   if (!isPaused && gameRunning) {
     requestAnimationFrame(updateGame);
   }
