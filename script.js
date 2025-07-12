@@ -59,7 +59,7 @@ rightBtn.addEventListener("touchcancel", (e) => {
   rightInterval = null;
 });
 
-// Nouveau : saut via bouton FLY
+// ✅ Nouveau : saut via bouton FLY
 flyBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
   jumpOver();
@@ -160,6 +160,9 @@ function jumpOver() {
   if (jumpCount > 0 && !isJumping && !isPaused && gameRunning) {
     isJumping = true;
     jumpCount--;
+
+    // Mettre à jour playerY juste avant le saut
+    playerY = parseFloat(playerCar.style.top || (window.innerHeight - 120));
 
     let jumpHeight = 100;
     let jumpDuration = 500;
