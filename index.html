@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dio Course</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="menu">
+    <h1>🚗 Jeu de Course Retro</h1>
+    <button onclick="startGame()">Démarrer</button>
+  </div>
+
+  <div id="gameArea" class="hidden">
+    <div id="playerCar"></div>
+    <button id="pauseBtn" tabindex="-1">⏸️ Pause</button>
+  </div>
+
+  <div id="score" class="hidden">Score: 0 | Sauts restants: 10</div>
+
+  <div id="gameOver" class="hidden">
+    <h2 id="finalScore"></h2>
+    <button id="restartBtn">Recommencer</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
