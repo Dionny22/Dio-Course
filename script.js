@@ -32,8 +32,6 @@ pauseBtn.addEventListener("click", togglePause);
 
 startDefaultBtn.addEventListener("click", () => {
   currentMusic = bgMusic;
-  currentMusic.currentTime = 0;
-  currentMusic.play().catch(e => console.log("Audio error", e));
   startGame();
 });
 
@@ -44,26 +42,22 @@ startCustomBtn.addEventListener("click", () => {
 fileInput.addEventListener("change", () => {
   const file = fileInput.files[0];
   if (file) {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+
     const customAudio = new Audio(URL.createObjectURL(file));
     customAudio.loop = true;
     currentMusic = customAudio;
-    currentMusic.play().catch(e => console.log("Audio error", e));
     startGame();
   }
 });
 
 restartSameBtn.addEventListener("click", () => {
-  if (currentMusic) {
-    currentMusic.currentTime = 0;
-    currentMusic.play().catch(e => console.log("Audio error", e));
-  }
   startGame();
 });
 
 restartDefaultBtn.addEventListener("click", () => {
   currentMusic = bgMusic;
-  currentMusic.currentTime = 0;
-  currentMusic.play().catch(e => console.log("Audio error", e));
   startGame();
 });
 
@@ -72,11 +66,9 @@ restartCustomBtn.addEventListener("click", () => {
 });
 
 muteBtn.addEventListener("click", () => {
-  if (currentMusic) {
-    currentMusic.muted = !currentMusic.muted;
-    crashSound.muted = currentMusic.muted;
-    muteBtn.textContent = currentMusic.muted ? "🔇" : "🔊";
-  }
+  currentMusic.muted = !currentMusic.muted;
+  crashSound.muted = currentMusic.muted;
+  muteBtn.textContent = currentMusic.muted ? "🔇" : "🔊";
 });
 
 let leftInterval, rightInterval;
@@ -111,6 +103,11 @@ function startGame() {
   speed = 3;
   isJumping = false;
   pauseBtn.textContent = "⏸️ Pause";
+
+  if (currentMusic && currentMusic.paused) {
+    currentMusic.currentTime = 0;
+    currentMusic.play().catch(e => console.log("Audio play error:", e));
+  }
 
   document.getElementById("menu").classList.add("hidden");
   gameOverDiv.classList.add("hidden");
@@ -253,7 +250,8 @@ function updateGame() {
     enemy.style.top = `${top}px`;
 
     const enemyHeight = enemy.offsetHeight;
-    const canCollide = !isJumping || enemyHeight >= 120;
+    const isSmallOrMedium = enemyHeight < 120;
+    const canCollide = (!isJumping || !isSmallOrMedium);
 
     if (canCollide && checkCollision(playerCar, enemy)) {
       crashSound.currentTime = 0;
@@ -298,4 +296,8 @@ function showGameOver() {
   scoreText.classList.add("hidden");
   finalScoreText.innerText = `Game Over ! Ton score : ${score}`;
   gameOverDiv.classList.remove("hidden");
+
+  if (currentMusic && !currentMusic.paused) {
+    currentMusic.pause();
+  }
 }
