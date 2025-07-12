@@ -1,251 +1,167 @@
-let playerCar, gameArea, scoreText;
-let playerX, playerY, speed, score;
-let enemies = [], lines = [];
-let jumpCount = 10;
-let isJumping = false;
-let gameRunning = false;
-let isPaused = false;
-let enemyInterval;
-
-const gameOverDiv = document.getElementById("gameOver");
-const finalScoreText = document.getElementById("finalScore");
-const restartBtn = document.getElementById("restartBtn");
-const pauseBtn = document.getElementById("pauseBtn");
-
-const leftBtn = document.getElementById("leftBtn");
-const rightBtn = document.getElementById("rightBtn");
-const flyBtn = document.getElementById("flyBtn");
-
-const bgMusic = document.getElementById("bgMusic");
-const crashSound = document.getElementById("crashSound");
-
-pauseBtn.addEventListener("click", togglePause);
-restartBtn.addEventListener("click", () => {
-  resetGame();
-  startGame();
-});
-
-let leftInterval, rightInterval;
-
-leftBtn.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  movePlayer("left");
-  leftInterval = setInterval(() => movePlayer("left"), 100);
-});
-leftBtn.addEventListener("touchend", () => clearInterval(leftInterval));
-leftBtn.addEventListener("touchcancel", () => clearInterval(leftInterval));
-
-rightBtn.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  movePlayer("right");
-  rightInterval = setInterval(() => movePlayer("right"), 100);
-});
-rightBtn.addEventListener("touchend", () => clearInterval(rightInterval));
-rightBtn.addEventListener("touchcancel", () => clearInterval(rightInterval));
-
-flyBtn.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  jumpOver();
-});
-
-function startGame() {
-  clearInterval(enemyInterval);
-  gameRunning = true;
-  isPaused = false;
-  jumpCount = 10;
-  score = 0;
-  speed = 3;
-  isJumping = false;
-  pauseBtn.textContent = "⏸️ Pause";
-
-  document.getElementById("menu").classList.add("hidden");
-  gameOverDiv.classList.add("hidden");
-
-  gameArea = document.getElementById("gameArea");
-  gameArea.classList.remove("hidden");
-  scoreText = document.getElementById("score");
-  scoreText.classList.remove("hidden");
-
-  enemies.forEach(e => e.remove());
-  lines.forEach(l => l.remove());
-  enemies = [];
-  lines = [];
-
-  playerCar = document.getElementById("playerCar");
-  playerX = window.innerWidth / 2 - 25;
-  playerY = window.innerHeight - playerCar.offsetHeight - 20;
-  updatePlayerPosition();
-
-  for (let i = 0; i < 6; i++) {
-    const line = document.createElement("div");
-    line.classList.add("roadLine");
-    line.style.top = `${i * 150}px`;
-    gameArea.appendChild(line);
-    lines.push(line);
-  }
-
-  enemyInterval = setInterval(() => {
-    if (!gameRunning || isPaused) return;
-    const enemy = document.createElement("div");
-    enemy.classList.add("enemyCar");
-
-    const sizes = [
-      { width: 35, height: 70 },
-      { width: 50, height: 100 },
-      { width: 70, height: 140 }
-    ];
-    const size = sizes[Math.floor(Math.random() * sizes.length)];
-
-    enemy.style.width = size.width + "px";
-    enemy.style.height = size.height + "px";
-    const maxLeft = window.innerWidth - size.width;
-    enemy.style.left = Math.floor(Math.random() * maxLeft) + "px";
-    enemy.style.top = `-${size.height}px`;
-
-    gameArea.appendChild(enemy);
-    enemies.push(enemy);
-  }, 1000);
-
-  bgMusic.volume = 0.3;
-  bgMusic.play();
-
-  requestAnimationFrame(updateGame);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-function resetGame() {
-  gameRunning = false;
-  isPaused = false;
-  clearInterval(enemyInterval);
-  enemies.forEach(e => e.remove());
-  lines.forEach(l => l.remove());
-  enemies = [];
-  lines = [];
-  document.getElementById("gameArea").classList.remove("hidden");
-  document.getElementById("score").classList.remove("hidden");
-  document.getElementById("gameOver").classList.add("hidden");
-
-  bgMusic.pause();
-  bgMusic.currentTime = 0;
+body {
+  font-family: sans-serif;
+  background-color: #111;
+  overflow: hidden;
 }
 
-function updatePlayerPosition() {
-  playerCar.style.left = `${playerX}px`;
-  playerCar.style.top = `${playerY}px`;
+.hidden {
+  display: none;
 }
 
-function movePlayer(dir) {
-  if (!gameRunning || isPaused) return;
-  const step = 20;
-  if (dir === "left" && playerX > 0) playerX -= step;
-  if (dir === "right" && playerX < window.innerWidth - 50) playerX += step;
-  updatePlayerPosition();
+#menu {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  background: #111;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-function jumpOver() {
-  if (jumpCount > 0 && !isJumping && !isPaused && gameRunning) {
-    isJumping = true;
-    jumpCount--;
-
-    const originalTop = parseFloat(playerCar.style.top || (window.innerHeight - 120));
-    const jumpHeight = 120;
-    const jumpDuration = 500;
-    let start = null;
-
-    playerCar.style.opacity = "0.3";
-
-    function animateJump(timestamp) {
-      if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-
-      if (elapsed < jumpDuration / 2) {
-        const newTop = originalTop - jumpHeight * (elapsed / (jumpDuration / 2));
-        playerCar.style.top = `${newTop}px`;
-      } else if (elapsed < jumpDuration) {
-        const newTop = originalTop - jumpHeight * (1 - (elapsed - jumpDuration / 2) / (jumpDuration / 2));
-        playerCar.style.top = `${newTop}px`;
-      } else {
-        playerCar.style.top = `${originalTop}px`;
-        playerCar.style.opacity = "1";
-        isJumping = false;
-        return;
-      }
-
-      requestAnimationFrame(animateJump);
-    }
-
-    requestAnimationFrame(animateJump);
-  }
+#menu h1 {
+  font-size: 2.5rem;
+  margin-bottom: 30px;
 }
 
-document.addEventListener("keydown", (e) => {
-  if (!gameRunning || isPaused) return;
-  if (e.key === "ArrowLeft") movePlayer("left");
-  if (e.key === "ArrowRight") movePlayer("right");
-  if (e.code === "Space") {
-    e.preventDefault();
-    jumpOver();
-  }
-});
-
-function updateGame() {
-  if (!gameRunning || isPaused) return;
-
-  scoreText.innerText = `Score: ${score} | Sauts restants: ${jumpCount}`;
-
-  lines.forEach(line => {
-    let top = parseFloat(line.style.top || "0");
-    top += speed;
-    if (top > window.innerHeight) top = -100;
-    line.style.top = `${top}px`;
-  });
-
-  enemies.forEach((enemy, index) => {
-    let top = parseFloat(enemy.style.top || "-120");
-    top += speed;
-    enemy.style.top = `${top}px`;
-
-    if (!isJumping && checkCollision(playerCar, enemy)) {
-      gameRunning = false;
-      clearInterval(enemyInterval);
-      showGameOver();
-    }
-
-    if (top > window.innerHeight) {
-      gameArea.removeChild(enemy);
-      enemies.splice(index, 1);
-      score++;
-      if (score % 5 === 0) speed += 0.5;
-    }
-  });
-
-  requestAnimationFrame(updateGame);
+#menu button {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  background: #0f0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-function checkCollision(a, b) {
-  const r1 = a.getBoundingClientRect();
-  const r2 = b.getBoundingClientRect();
-  return (
-    r1.left < r2.right &&
-    r1.right > r2.left &&
-    r1.top < r2.bottom &&
-    r1.bottom > r2.top
-  );
+#gameArea {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #222;
+  overflow: hidden;
 }
 
-function togglePause() {
-  isPaused = !isPaused;
-  pauseBtn.textContent = isPaused ? "▶️ Reprendre" : "⏸️ Pause";
-  if (!isPaused && gameRunning) {
-    requestAnimationFrame(updateGame);
-  }
+#pauseBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 12;
+  font-size: 18px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #f90;
+  color: #000;
+  cursor: pointer;
 }
 
-function showGameOver() {
-  bgMusic.pause();
-  crashSound.play();
+.roadLine {
+  position: absolute;
+  width: 6px;
+  height: 80px;
+  background: white;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.5;
+  z-index: 0;
+}
 
-  gameArea.classList.add("hidden");
-  scoreText.classList.add("hidden");
-  finalScoreText.innerText = `Game Over ! Ton score : ${score}`;
-  gameOverDiv.classList.remove("hidden");
+#playerCar {
+  position: absolute;
+  width: 50px;
+  height: 100px;
+  background: blue;
+  border-radius: 10px;
+  z-index: 3;
+  transition: top 0.1s;
+}
+
+.enemyCar {
+  position: absolute;
+  background: red;
+  border-radius: 10px;
+  z-index: 2;
+}
+
+#score {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  font-size: 20px;
+  z-index: 10;
+}
+
+#gameOver {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #111;
+  color: white;
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 20;
+  box-shadow: 0 0 20px #0f0;
+}
+
+#gameOver button {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-size: 18px;
+  background: #0f0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* Boutons mobiles */
+.mobile-btn {
+  position: fixed;
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-radius: 10px;
+  color: black;
+  z-index: 15;
+  user-select: none;
+  touch-action: none;
+  cursor: pointer;
+  width: 60px;
+  height: 60px;
+  font-size: 30px;
+  bottom: 40px;
+}
+
+#leftBtn {
+  left: 20px;
+}
+
+#rightBtn {
+  right: 20px;
+}
+
+/* Styles pour les nouveaux boutons du menu */
+#menu .option-btn {
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  margin: 10px;
+  background: #0cf;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Champ input file pour la musique */
+#musicFileInput {
+  margin-top: 15px;
+  color: white;
 }
