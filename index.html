@@ -9,7 +9,9 @@
 <body>
   <div id="menu">
     <h1>🚗 Jeu de Course</h1>
-    <button onclick="startGame()">Démarrer</button>
+    <button id="useDefaultMusicBtn">Commencer avec la musique du jeu</button>
+    <button id="importMusicBtn">Importer ma propre musique</button>
+    <input type="file" id="customMusicInput" accept="audio/*" class="hidden" />
   </div>
 
   <div id="gameArea" class="hidden">
@@ -21,18 +23,21 @@
     <button id="flyBtn" class="mobile-btn" style="bottom: 110px; right: 20px; width: 70px; height: 50px; font-size: 18px;">FLY</button>
 
     <button id="pauseBtn" tabindex="-1">⏸️ Pause</button>
+    <button id="muteBtn" tabindex="-1" style="right: 100px; top: 10px; position: absolute;">🔊</button>
   </div>
 
   <div id="score" class="hidden">Score: 0 | Sauts restants: 10</div>
 
   <div id="gameOver" class="hidden">
     <h2 id="finalScore"></h2>
-    <button id="restartBtn">Recommencer</button>
+    <button id="restartSameMusicBtn">Recommencer avec la même chanson</button>
+    <button id="restartDefaultMusicBtn">Recommencer avec la musique du jeu</button>
+    <button id="restartNewMusicBtn">Recommencer avec une autre musique</button>
   </div>
 
   <!-- 🎵 Sons du jeu -->
   <audio id="bgMusic" src="engine_loop.mp3" loop></audio>
-  <audio id="crashSound" src="explosion.mp3"></audio>
+  <audio id="explosionSound" src="explosion.mp3"></audio>
 
   <script src="script.js"></script>
 </body>
