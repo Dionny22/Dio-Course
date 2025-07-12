@@ -5,7 +5,7 @@ let jumpCount = 10;
 let isJumping = false;
 let gameRunning = false;
 let isPaused = false;
-let enemyInterval, lastTapTime = 0;
+let enemyInterval;
 
 const gameOverDiv = document.getElementById("gameOver");
 const finalScoreText = document.getElementById("finalScore");
@@ -20,18 +20,17 @@ restartBtn.addEventListener("click", () => {
 
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
+const flyBtn = document.getElementById("flyBtn");
 
-let leftInterval, rightInterval;
+let leftInterval = null;
+let rightInterval = null;
 
 leftBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
-  if (leftInterval) return; 
+  if (leftInterval) return;
   movePlayer("left");
-  leftInterval = setInterval(() => {
-    movePlayer("left");
-  }, 100);
+  leftInterval = setInterval(() => movePlayer("left"), 100);
 });
-
 leftBtn.addEventListener("touchend", (e) => {
   e.preventDefault();
   clearInterval(leftInterval);
@@ -47,11 +46,8 @@ rightBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
   if (rightInterval) return;
   movePlayer("right");
-  rightInterval = setInterval(() => {
-    movePlayer("right");
-  }, 100);
+  rightInterval = setInterval(() => movePlayer("right"), 100);
 });
-
 rightBtn.addEventListener("touchend", (e) => {
   e.preventDefault();
   clearInterval(rightInterval);
@@ -61,6 +57,12 @@ rightBtn.addEventListener("touchcancel", (e) => {
   e.preventDefault();
   clearInterval(rightInterval);
   rightInterval = null;
+});
+
+// Nouveau : saut via bouton FLY
+flyBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  jumpOver();
 });
 
 function startGame() {
@@ -88,7 +90,7 @@ function startGame() {
 
   playerCar = document.getElementById("playerCar");
   playerX = window.innerWidth / 2 - 25;
-  playerY = window.innerHeight - playerCar.offsetHeight - 20;  // position bas écran précise
+  playerY = window.innerHeight - playerCar.offsetHeight - 20;
   updatePlayerPosition();
 
   for (let i = 0; i < 6; i++) {
@@ -108,7 +110,7 @@ function startGame() {
     const sizes = [
       { width: 35, height: 70 },
       { width: 50, height: 100 },
-      { width: 70, height: 140 }
+      { width:  70, height: 140 }
     ];
     const size = sizes[Math.floor(Math.random() * sizes.length)];
 
