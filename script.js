@@ -1,4 +1,3 @@
-// script.js
 let playerCar, gameArea, scoreText;
 let playerX, playerY, speed, score;
 let enemies = [], lines = [];
@@ -7,72 +6,79 @@ let isJumping = false;
 let gameRunning = false;
 let isPaused = false;
 let enemyInterval;
-let currentMusic = "default";
+let currentMusic = null;
 
 const gameOverDiv = document.getElementById("gameOver");
 const finalScoreText = document.getElementById("finalScore");
-const restartSameMusicBtn = document.getElementById("restartSameMusicBtn");
-const restartDefaultMusicBtn = document.getElementById("restartDefaultMusicBtn");
-const restartNewMusicBtn = document.getElementById("restartNewMusicBtn");
+const restartSameBtn = document.getElementById("restartSameBtn");
+const restartDefaultBtn = document.getElementById("restartDefaultBtn");
+const restartCustomBtn = document.getElementById("restartCustomBtn");
 const pauseBtn = document.getElementById("pauseBtn");
 const muteBtn = document.getElementById("muteBtn");
-const useDefaultMusicBtn = document.getElementById("useDefaultMusicBtn");
-const importMusicBtn = document.getElementById("importMusicBtn");
-const customMusicInput = document.getElementById("customMusicInput");
 
 const bgMusic = document.getElementById("bgMusic");
-const explosionSound = document.getElementById("explosionSound");
+const crashSound = document.getElementById("crashSound");
+currentMusic = bgMusic;
+
+const fileInput = document.getElementById("fileInput");
+const startDefaultBtn = document.getElementById("startDefault");
+const startCustomBtn = document.getElementById("startCustom");
 
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 const flyBtn = document.getElementById("flyBtn");
 
-// Musique
-useDefaultMusicBtn.addEventListener("click", () => {
-  currentMusic = "default";
-  bgMusic.src = "engine_loop.mp3";
+pauseBtn.addEventListener("click", togglePause);
+
+startDefaultBtn.addEventListener("click", () => {
+  currentMusic = bgMusic;
+  currentMusic.currentTime = 0;
+  currentMusic.play().catch(e => console.log("Audio error", e));
   startGame();
 });
 
-importMusicBtn.addEventListener("click", () => {
-  customMusicInput.click();
+startCustomBtn.addEventListener("click", () => {
+  fileInput.click();
 });
 
-customMusicInput.addEventListener("change", () => {
-  const file = customMusicInput.files[0];
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
   if (file) {
-    const url = URL.createObjectURL(file);
-    bgMusic.src = url;
-    currentMusic = url;
+    const customAudio = new Audio(URL.createObjectURL(file));
+    customAudio.loop = true;
+    currentMusic = customAudio;
+    currentMusic.play().catch(e => console.log("Audio error", e));
     startGame();
   }
 });
 
-muteBtn.addEventListener("click", () => {
-  bgMusic.muted = !bgMusic.muted;
-  explosionSound.muted = bgMusic.muted;
-  muteBtn.textContent = bgMusic.muted ? "🔇" : "🔊";
-});
-
-pauseBtn.addEventListener("click", togglePause);
-
-restartSameMusicBtn.addEventListener("click", () => {
-  resetGame();
-  startGame(currentMusic);
-});
-
-restartDefaultMusicBtn.addEventListener("click", () => {
-  currentMusic = "default";
-  bgMusic.src = "engine_loop.mp3";
-  resetGame();
+restartSameBtn.addEventListener("click", () => {
+  if (currentMusic) {
+    currentMusic.currentTime = 0;
+    currentMusic.play().catch(e => console.log("Audio error", e));
+  }
   startGame();
 });
 
-restartNewMusicBtn.addEventListener("click", () => {
-  customMusicInput.click();
+restartDefaultBtn.addEventListener("click", () => {
+  currentMusic = bgMusic;
+  currentMusic.currentTime = 0;
+  currentMusic.play().catch(e => console.log("Audio error", e));
+  startGame();
 });
 
-// Touches mobiles
+restartCustomBtn.addEventListener("click", () => {
+  fileInput.click();
+});
+
+muteBtn.addEventListener("click", () => {
+  if (currentMusic) {
+    currentMusic.muted = !currentMusic.muted;
+    crashSound.muted = currentMusic.muted;
+    muteBtn.textContent = currentMusic.muted ? "🔇" : "🔊";
+  }
+});
+
 let leftInterval, rightInterval;
 
 leftBtn.addEventListener("touchstart", (e) => {
@@ -81,25 +87,19 @@ leftBtn.addEventListener("touchstart", (e) => {
   leftInterval = setInterval(() => movePlayer("left"), 100);
 });
 leftBtn.addEventListener("touchend", () => clearInterval(leftInterval));
+leftBtn.addEventListener("touchcancel", () => clearInterval(leftInterval));
+
 rightBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
   movePlayer("right");
   rightInterval = setInterval(() => movePlayer("right"), 100);
 });
 rightBtn.addEventListener("touchend", () => clearInterval(rightInterval));
+rightBtn.addEventListener("touchcancel", () => clearInterval(rightInterval));
+
 flyBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
   jumpOver();
-});
-
-document.addEventListener("keydown", (e) => {
-  if (!gameRunning || isPaused) return;
-  if (e.key === "ArrowLeft") movePlayer("left");
-  if (e.key === "ArrowRight") movePlayer("right");
-  if (e.code === "Space") {
-    e.preventDefault();
-    jumpOver();
-  }
 });
 
 function startGame() {
@@ -138,9 +138,6 @@ function startGame() {
     lines.push(line);
   }
 
-  bgMusic.currentTime = 0;
-  bgMusic.play();
-
   enemyInterval = setInterval(() => {
     if (!gameRunning || isPaused) return;
     const enemy = document.createElement("div");
@@ -174,8 +171,8 @@ function resetGame() {
   lines.forEach(l => l.remove());
   enemies = [];
   lines = [];
-  gameArea.classList.remove("hidden");
-  scoreText.classList.remove("hidden");
+  document.getElementById("gameArea").classList.remove("hidden");
+  document.getElementById("score").classList.remove("hidden");
   gameOverDiv.classList.add("hidden");
 }
 
@@ -228,6 +225,16 @@ function jumpOver() {
   }
 }
 
+document.addEventListener("keydown", (e) => {
+  if (!gameRunning || isPaused) return;
+  if (e.key === "ArrowLeft") movePlayer("left");
+  if (e.key === "ArrowRight") movePlayer("right");
+  if (e.code === "Space") {
+    e.preventDefault();
+    jumpOver();
+  }
+});
+
 function updateGame() {
   if (!gameRunning || isPaused) return;
 
@@ -249,9 +256,8 @@ function updateGame() {
     const canCollide = !isJumping || enemyHeight >= 120;
 
     if (canCollide && checkCollision(playerCar, enemy)) {
-      explosionSound.currentTime = 0;
-      explosionSound.play();
-      bgMusic.pause();
+      crashSound.currentTime = 0;
+      crashSound.play();
       gameRunning = false;
       clearInterval(enemyInterval);
       showGameOver();
