@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dio Course</title>
+  <title>Jeu de Course</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="menu">
-    <h1>🚗 Jeu de Course Rétro</h1>
+    <h1>🚗 Jeu de Course</h1>
     <button onclick="startGame()">Démarrer</button>
   </div>
 
   <div id="gameArea" class="hidden">
     <div id="playerCar"></div>
+
+    <!-- Boutons mobiles -->
+    <button id="leftBtn" class="mobile-btn">⬅️</button>
+    <button id="rightBtn" class="mobile-btn">➡️</button>
+    <button id="flyBtn" class="mobile-btn" style="bottom: 110px; right: 20px; width: 70px; height: 50px; font-size: 18px;">FLY</button>
+
     <button id="pauseBtn" tabindex="-1">⏸️ Pause</button>
   </div>
 
@@ -22,12 +28,6 @@
   <div id="gameOver" class="hidden">
     <h2 id="finalScore"></h2>
     <button id="restartBtn">Recommencer</button>
-  </div>
-
-  <!-- Boutons flèches pour mobile -->
-  <div id="mobileControls">
-    <button id="leftBtn" aria-label="Gauche">←</button>
-    <button id="rightBtn" aria-label="Droite">→</button>
   </div>
 
   <script src="script.js"></script>
