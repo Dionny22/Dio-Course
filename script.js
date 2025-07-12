@@ -18,6 +18,19 @@ restartBtn.addEventListener("click", () => {
   startGame();
 });
 
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+
+leftBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  movePlayer("left");
+});
+
+rightBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  movePlayer("right");
+});
+
 function startGame() {
   clearInterval(enemyInterval);
   gameRunning = true;
@@ -46,7 +59,6 @@ function startGame() {
   playerY = window.innerHeight - 150;
   updatePlayerPosition();
 
-  // Créer lignes de route
   for (let i = 0; i < 6; i++) {
     const line = document.createElement("div");
     line.classList.add("roadLine");
@@ -154,55 +166,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowUp") movePlayer("up");
   if (e.key === "ArrowDown") movePlayer("down");
   if (e.code === "Space") jumpOver();
-});
-
-// Swipe tactile amélioré pour mobile
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-const minSwipeDistance = 30;
-
-gameArea.addEventListener("touchstart", (e) => {
-  if (!gameRunning || isPaused) return;
-  const touch = e.touches[0];
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
-});
-
-gameArea.addEventListener("touchmove", (e) => {
-  e.preventDefault();
-});
-
-gameArea.addEventListener("touchend", (e) => {
-  if (!gameRunning || isPaused) return;
-  const touch = e.changedTouches[0];
-  touchEndX = touch.clientX;
-  touchEndY = touch.clientY;
-
-  const diffX = touchEndX - touchStartX;
-  const diffY = touchEndY - touchStartY;
-
-  if (Math.abs(diffX) > Math.abs(diffY)) {
-    if (diffX > minSwipeDistance) {
-      movePlayer("right");
-    } else if (diffX < -minSwipeDistance) {
-      movePlayer("left");
-    }
-  } else {
-    if (diffY > minSwipeDistance) {
-      movePlayer("down");
-    } else if (diffY < -minSwipeDistance) {
-      movePlayer("up");
-    }
-  }
-
-  // Double tap pour sauter
-  const now = new Date().getTime();
-  if (now - lastTapTime < 400) {
-    jumpOver();
-  }
-  lastTapTime = now;
 });
 
 function updateGame() {
